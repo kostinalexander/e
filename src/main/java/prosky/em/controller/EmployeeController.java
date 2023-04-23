@@ -4,6 +4,8 @@ import org.springframework.web.bind.annotation.*;
 import prosky.em.model.Employee;
 import prosky.em.service.EmployeeService;
 
+import java.util.Collection;
+
 @RestController
 @RequestMapping("/employee")
 public class EmployeeController {
@@ -14,9 +16,8 @@ public class EmployeeController {
     }
 
     @GetMapping("/add")
-    public Employee addEmployee(@RequestParam String firstName, @RequestParam String lastName){
-        Employee employee = new Employee(firstName,lastName);
-        return employeeService.add(firstName, lastName);
+    public Employee addEmployee(@RequestParam Employee employee){
+        return employeeService.add(employee);
     }
 
     @GetMapping("/remove")
@@ -28,6 +29,11 @@ public class EmployeeController {
     public Employee findEmployee(@RequestParam String firstName, @RequestParam String lastName){
         return  employeeService.find(firstName,lastName);
     }
+      @GetMapping
+public Collection<Employee>findAll(){
+        return employeeService.findAll();
+      }
+
 
 
 }

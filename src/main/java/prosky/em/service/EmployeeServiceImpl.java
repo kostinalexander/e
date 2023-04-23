@@ -6,40 +6,80 @@ import prosky.em.exeption.EmployeeNotFoundException;
 import prosky.em.exeption.EmployeeStorageIsFullException;
 import prosky.em.model.Employee;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 @Service
 public class EmployeeServiceImpl implements EmployeeService{
     private int counter=1;
-private final Map<Long,Employee> employeeMap  = new HashMap<>();
+
+private final Map<Integer,Employee> employeeMap  = new HashMap<>();
+    public EmployeeServiceImpl(){
+        add(new Employee(0 ,"Александр", "Костин", 39999, 2));
+        add(new Employee(0 ,"Кост", "Билд", 36599, 2));
+        add(new Employee(0 ,"Егор", "Болд", 34999, 4));
+        add(new Employee(0 ,"Василич", "Остин", 39999, 2));
+        add(new Employee(0 ,"Роман", "Косин", 375799, 3));
+        add(new Employee(0 ,"Денис", "Кос", 32219, 3));
+
+
+    }
 
     @Override
-    public Employee add(String firstName, String lastName) { // СОЗДАЛИ ОБЪЕКТ, НУЖНО СОЗДАТЬ ОБЪЕКТ ИЗ ИМЕНИ И ФАМИЛИИ, МЫ СОЗДАЛИ ОБЪЕКТ И ЗАПОЛНИИЛ ЕГО
-        Employee employee = new Employee(firstName,lastName);
-        if (employee.getId()!=null){
+    public Employee add(Employee employee) { // СОЗДАЛИ ОБЪЕКТ, НУЖНО СОЗДАТЬ ОБЪЕКТ ИЗ ИМЕНИ И ФАМИЛИИ, МЫ СОЗДАЛИ ОБЪЕКТ И ЗАПОЛНИИЛ ЕГО
+        boolean isAd = employeeMap.values().stream()
+                .anyMatch(e -> e.getFirstName().equals(employee.getFirstName())&& e.getLastName().equals(employee.getLastName()));
+
+        if(isAd){
             throw new EmployeeAlreadyAddedException();
         }
-        employee.setId(counter++); // присвоили айди, следующий объект получит айди + 1
-        return employeeMap.put(employee.getId(),employee); // put метод map, чтобы добавить
+        employee.setId(counter++);
+        // присвоили айди, следующий объект получит айди + 1
+        employee.setDepartment(employee.getDepartment());
+        employee.setSalary(employee.getSalary());
+         employeeMap.put(employee.getId(),employee);// put метод map, чтобы добавить
+         return employee;
     }
 
     @Override
     public Employee remove(String firstName, String lastName) {
-       Employee employee =  new Employee(firstName,lastName);
-        if(!employeeMap.containsKey(employee.getId())){
-            throw new EmployeeNotFoundException();
-        } // если существует такой объект, под индефикатором id ТО удали его
-        return employeeMap.remove(employee);
+       for(Employee tmp : employeeMap.values()){
+           if(tmp.getFirstName().equals(firstName)&& tmp.getLastName().equals(lastName)){
+                  return employeeMap.remove(tmp.getId());
+           }
+       }throw new EmployeeNotFoundException();
     }
 
     @Override
     public Employee find(String firstName, String lastName) {
-        Employee employee =  new Employee(firstName,lastName);
-        if(!employeeMap.containsKey(employee.getId())){ //если ключа нет то исключение
-            throw new EmployeeStorageIsFullException();
+        for (Employee tmp : employeeMap.values()) {
+            if(tmp.getFirstName().equals(firstName)&& tmp.getLastName().equals(lastName)){
+                return tmp;
+            }
         }
-        return employeeMap.get(employee.getId());// если ключ есть то верни объект с айди таким=то(верни объект с данным ключом)
+        throw new EmployeeStorageIsFullException();
     }
+    @Override
+    public Collection<Employee> findAll() {
+
+        return Collections.unmodifiableCollection(employeeMap.values());
+    }
+
+
+
+//    @Override
+//    public Employee findByDepartmentMaxSalary(int department) {
+//        double max = Double.MAX_VALUE;
+//        var sortByMaxSalary = Comparator.comparing(Employee::getSalary);
+//        Employee employeeMaxSalary = null;
+//        for (Employee employee : employeeMap.values()) {
+//            if(employee.getDepartment()== department && employee.getSalary()>max){
+//                max = employee.getSalary();
+//                employeeMaxSalary = employee;
+//            }
+//        }
+//        return employeeMaxSalary;
+//    }
+
+
 
 }
